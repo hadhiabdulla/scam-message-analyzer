@@ -7,108 +7,110 @@
 <title>Scam Message Analyzer</title>
 <style>
 :root{
-  --accent:#7c6cff; --accent2:#4f8cff; --accent-soft:rgba(124,108,255,.12);
-  --high:#ff6b61; --high-bg:rgba(255,107,97,.10);
-  --susp:#ffb454; --susp-bg:rgba(255,180,84,.10);
-  --grey:#9aa4b2; --grey-bg:rgba(154,164,178,.10);
-  --ink:#eef1f6; --muted:#9aa4b2; --line:rgba(255,255,255,.08);
-  --card:rgba(255,255,255,.035); --card-border:rgba(255,255,255,.08);
+  --accent:#4f46e5; --accent-soft:#eef0fe;
+  --high:#b3261e; --high-bg:#fdeceb;
+  --susp:#9a6200; --susp-bg:#fff4e0;
+  --grey:#5f6368; --grey-bg:#eef1f4;
+  --ink:#17181c; --muted:#5c6270; --line:#e3e5ea; --card:#ffffff;
 }
 *{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);background:#0b0e14;
-  background-image:radial-gradient(900px 500px at 85% -10%,rgba(124,108,255,.16),transparent 60%),radial-gradient(700px 420px at -10% 10%,rgba(79,140,255,.12),transparent 60%);
-  background-attachment:fixed;min-height:100vh}
-header{background:rgba(11,14,20,.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line);padding:12px 0;position:sticky;top:0;z-index:10}
-.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
-header .wrap{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-.logo{font-size:17px;font-weight:800;letter-spacing:-.02em}
-.logo .dot{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
-nav{margin-left:auto;display:flex;gap:2px;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:999px;padding:4px}
-nav button{background:transparent;color:var(--muted);border:0;font-size:13.5px;font-weight:600;padding:7px 14px;border-radius:999px;cursor:pointer;transition:color .15s,background .15s}
-nav button.on{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 2px 10px rgba(124,108,255,.35)}
-nav button:hover{color:var(--ink)}
-main{padding:34px 0 70px}
-.view{display:none}.view.on{display:block;animation:fadein .25s ease}
-@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-.hero{margin:8px 0 26px}
-.hero h1{font-size:clamp(30px,4.2vw,42px);font-weight:800;letter-spacing:-.03em;line-height:1.12;margin:0 0 10px}
-.hero p{margin:0;color:var(--muted);font-size:16px;max-width:620px;line-height:1.55}
-.card{background:var(--card);border:1px solid var(--card-border);border-radius:18px;padding:22px;margin-top:18px;box-shadow:0 8px 30px rgba(0,0,0,.25);backdrop-filter:blur(6px)}
-label.lbl{font-weight:650;font-size:14px;display:block;margin-bottom:10px;letter-spacing:-.01em}
-textarea{width:100%;min-height:124px;font-size:15px;line-height:1.55;padding:14px 16px;border:1px solid var(--card-border);border-radius:14px;resize:vertical;font-family:inherit;background:rgba(0,0,0,.28);color:var(--ink);transition:border-color .15s,box-shadow .15s}
-textarea::placeholder{color:#6b7避3}
-textarea::placeholder{color:#6b7484}
-textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,108,255,.22)}
-.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px}
-button.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:0;font-size:15px;font-weight:700;padding:12px 26px;border-radius:12px;cursor:pointer;box-shadow:0 4px 16px rgba(124,108,255,.35);transition:transform .12s,box-shadow .12s}
-button.primary:hover{transform:translateY(-1px);box-shadow:0 6px 22px rgba(124,108,255,.45)}
-button.primary:active{transform:none}
-button.ghost{background:rgba(255,255,255,.04);color:#c9c2ff;border:1px solid rgba(124,108,255,.4);font-size:14px;font-weight:600;padding:10px 18px;border-radius:12px;cursor:pointer;transition:background .15s}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:#f6f7f9;color:var(--ink)}
+header{background:#17181c;color:#fff;padding:14px 0;position:sticky;top:0;z-index:10}
+.wrap{max-width:920px;margin:0 auto;padding:0 16px}
+header .wrap{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.logo{font-size:18px;font-weight:700;letter-spacing:.2px}
+.logo .dot{color:#8b93ff}
+nav{margin-left:auto;display:flex;gap:4px;flex-wrap:wrap}
+nav button{background:transparent;color:#c8cbd6;border:0;font-size:14px;padding:7px 12px;border-radius:999px;cursor:pointer}
+nav button.on{background:#2e3040;color:#fff}
+nav button:hover{color:#fff}
+main{padding:26px 0 60px}
+.view{display:none}.view.on{display:block}
+.hero{margin:6px 0 20px}
+.hero h1{font-size:28px;margin:0 0 6px}
+.hero p{margin:0;color:var(--muted);font-size:15px;max-width:640px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-top:16px;box-shadow:0 1px 2px rgba(20,20,40,.04)}
+label.lbl{font-weight:600;font-size:14px;display:block;margin-bottom:8px}
+textarea{width:100%;min-height:120px;font-size:15px;line-height:1.5;padding:12px;border:1px solid var(--line);border-radius:10px;resize:vertical;font-family:inherit}
+textarea:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:transparent}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}
+button.primary{background:var(--accent);color:#fff;border:0;font-size:15px;font-weight:600;padding:11px 22px;border-radius:10px;cursor:pointer}
+button.primary:hover{background:#4338ca}
+button.ghost{background:#fff;color:var(--accent);border:1px solid #c9cdf5;font-size:14px;font-weight:600;padding:9px 16px;border-radius:10px;cursor:pointer}
 button.ghost:hover{background:var(--accent-soft)}
-button.linklike{background:none;border:0;color:var(--accent2);cursor:pointer;font-size:13px;padding:4px 0;text-decoration:underline}
+button.linklike{background:none;border:0;color:var(--accent);cursor:pointer;font-size:13px;padding:4px 0;text-decoration:underline}
 .hint{font-size:13px;color:var(--muted)}
-.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.chip{border:1px solid var(--card-border);background:rgba(255,255,255,.04);border-radius:999px;font-size:13px;padding:7px 14px;cursor:pointer;color:#c3cad6;transition:border-color .15s,color .15s,transform .12s}
-.chip:hover{border-color:var(--accent);color:#fff;transform:translateY(-1px)}
-.chip.scam{border-color:rgba(255,107,97,.35)}.chip.ok{border-color:rgba(110,220,150,.3)}
-.verdict{border-radius:16px;padding:18px 20px;display:flex;gap:18px;align-items:center;flex-wrap:wrap}
-.verdict.high{background:linear-gradient(135deg,rgba(255,107,97,.14),rgba(255,107,97,.05));border:1px solid rgba(255,107,97,.45);box-shadow:0 0 24px rgba(255,107,97,.12)}
-.verdict.susp{background:linear-gradient(135deg,rgba(255,180,84,.14),rgba(255,180,84,.05));border:1px solid rgba(255,180,84,.45);box-shadow:0 0 24px rgba(255,180,84,.10)}
-.verdict.grey{background:var(--grey-bg);border:1px solid rgba(154,164,178,.3)}
-.vlevel{font-size:22px;font-weight:800;letter-spacing:-.01em}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;font-size:13px;padding:6px 12px;cursor:pointer;color:#3a3f4d}
+.chip:hover{border-color:var(--accent);color:var(--accent)}
+.chip.scam{border-color:#f0c4c0}.chip.ok{border-color:#c4e0c8}
+.verdict{border-radius:12px;padding:14px 16px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.verdict.high{background:var(--high-bg);border:1px solid #e8a9a4}
+.verdict.susp{background:var(--susp-bg);border:1px solid #ecc989}
+.verdict.grey{background:var(--grey-bg);border:1px solid #c9ced6}
+.vlevel{font-size:20px;font-weight:800}
 .high .vlevel{color:var(--high)} .susp .vlevel{color:var(--susp)} .grey .vlevel{color:var(--grey)}
 .scorewrap{flex:1;min-width:180px}
-.scorebar{height:12px;background:rgba(255,255,255,.08);border-radius:8px;overflow:hidden}
-.scorefill{height:100%;border-radius:8px;transition:width .5s ease}
-.high .scorefill{background:linear-gradient(90deg,#ff8a80,var(--high))}
-.susp .scorefill{background:linear-gradient(90deg,#ffd08a,var(--susp))}
-.grey .scorefill{background:#8fa3b8}
-.scorenum{font-size:13px;color:var(--muted);margin-top:6px;font-variant-numeric:tabular-nums}
-.msgbox{background:rgba(0,0,0,.3);border:1px solid var(--card-border);border-radius:14px;padding:16px 18px;font-size:15.5px;line-height:1.8;white-space:pre-wrap;overflow-wrap:anywhere}
-mark{border-radius:5px;padding:1px 4px;cursor:help;color:#14161c;font-weight:600}
-.legend{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
-.lg{font-size:12px;border-radius:8px;padding:4px 10px;border:1px solid var(--card-border);background:rgba(255,255,255,.03);display:inline-flex;align-items:center;gap:6px;color:#c3cad6}
+.scorebar{height:10px;background:rgba(0,0,0,.08);border-radius:6px;overflow:hidden}
+.scorefill{height:100%;border-radius:6px}
+.high .scorefill{background:var(--high)} .susp .scorefill{background:#e08a00} .grey .scorefill{background:#90a4ae}
+.scorenum{font-size:13px;color:var(--muted);margin-top:4px}
+.msgbox{background:#fbfbfc;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:15px;line-height:1.75;white-space:pre-wrap;overflow-wrap:anywhere}
+mark{border-radius:4px;padding:1px 2px;border-bottom:2px solid rgba(0,0,0,.25);cursor:help}
+.legend{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.lg{font-size:12px;border-radius:6px;padding:3px 8px;border:1px solid var(--line);display:inline-flex;align-items:center;gap:6px}
 .lg .sw{width:10px;height:10px;border-radius:3px;display:inline-block}
-ul.sigs{margin:14px 0 0;padding:0;list-style:none}
-ul.sigs li{padding:12px 16px;border:1px solid var(--card-border);background:rgba(255,255,255,.025);border-radius:12px;margin-bottom:10px;font-size:14px}
+ul.sigs{margin:12px 0 0;padding:0;list-style:none}
+ul.sigs li{padding:10px 12px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;font-size:14px}
 ul.sigs .tag{font-weight:700}
 ul.sigs .w{color:var(--muted);font-size:13px}
-ul.sigs .match{display:block;margin-top:5px;font-size:13px;color:var(--muted);font-style:italic;overflow-wrap:anywhere}
-.watson{border:1px solid rgba(124,108,255,.4);background:linear-gradient(135deg,rgba(124,108,255,.12),rgba(79,140,255,.06))}
-.watson h3{margin:0 0 4px;font-size:16px;letter-spacing:-.01em}
-.badge{display:inline-block;font-size:12px;font-weight:700;color:#dcd6ff;background:rgba(124,108,255,.22);border:1px solid rgba(124,108,255,.35);border-radius:8px;padding:3px 10px;margin-bottom:10px}
-.bar{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:14px}
-.bar .l{width:76px;text-transform:capitalize;color:#c3cad6}
-.bar .t{flex:1;background:rgba(255,255,255,.08);height:12px;border-radius:6px;overflow:hidden}
-.bar .f{background:linear-gradient(90deg,var(--accent),var(--accent2));height:100%}
-.bar .v{width:44px;text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
-details{margin-top:12px}summary{cursor:pointer;color:var(--accent2);font-size:14px}
-pre{background:rgba(0,0,0,.35);border:1px solid var(--card-border);border-radius:10px;padding:12px;font-size:12.5px;overflow-x:auto;white-space:pre-wrap;overflow-wrap:anywhere;color:#d6dce6}
+ul.sigs .match{display:block;margin-top:4px;font-size:13px;color:var(--muted);font-style:italic;overflow-wrap:anywhere}
+.watson{border:1px solid #c3cbff;background:var(--accent-soft)}
+.watson h3{margin:0 0 4px;font-size:16px}
+.badge{display:inline-block;font-size:12px;font-weight:700;color:#3730a3;background:#dfe3ff;border-radius:6px;padding:2px 8px;margin-bottom:8px}
+.bar{display:flex;align-items:center;gap:10px;margin:7px 0;font-size:14px}
+.bar .l{width:76px;text-transform:capitalize}
+.bar .t{flex:1;background:#d5dbfa;height:12px;border-radius:6px;overflow:hidden}
+.bar .f{background:var(--accent);height:100%}
+.bar .v{width:44px;text-align:right;font-variant-numeric:tabular-nums}
+details{margin-top:10px}summary{cursor:pointer;color:var(--accent);font-size:14px}
+pre{background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px;font-size:12px;overflow-x:auto;white-space:pre-wrap;overflow-wrap:anywhere}
 textarea.code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;min-height:150px}
-table.batch{width:100%;border-collapse:collapse;margin-top:14px;font-size:14px}
-table.batch th{text-align:left;font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;padding:10px 12px;border-bottom:1px solid var(--line)}
-table.batch td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.05);vertical-align:top}
-tr.brow{cursor:pointer;transition:background .12s} tr.brow:hover{background:rgba(255,255,255,.04)}
-.hitem{display:flex;gap:12px;align-items:center;padding:12px 16px;border:1px solid var(--card-border);border-radius:12px;margin-bottom:10px;cursor:pointer;background:var(--card);transition:border-color .15s}
+table.batch{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}
+table.batch th{text-align:left;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;padding:8px 10px;border-bottom:2px solid var(--line)}
+table.batch td{padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
+tr.brow{cursor:pointer} tr.brow:hover{background:#fafafe}
+.pill{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:3px 10px;white-space:nowrap}
+.pill.high{background:var(--high-bg);color:var(--high)}
+.pill.susp{background:var(--susp-bg);color:var(--susp)}
+.pill.grey{background:var(--grey-bg);color:var(--grey)}
+.minibar{width:70px;height:8px;background:#e8eaef;border-radius:4px;overflow:hidden;display:inline-block;vertical-align:middle;margin-right:8px}
+.minibar i{display:block;height:100%}
+.excerpt{overflow-wrap:anywhere}
+.detail{background:#fafafc}
+.detail ul{margin:8px 0 4px;padding-left:18px;font-size:13px}
+.detail li{margin:4px 0}
+.summary{display:flex;gap:14px;flex-wrap:wrap;font-size:14px;margin-top:12px}
+.summary b{font-size:16px}
+.hitem{display:flex;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;cursor:pointer;background:#fff}
 .hitem:hover{border-color:var(--accent)}
 .hitem .hx{flex:1;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hitem .ht{font-size:12px;color:var(--muted);white-space:nowrap}
-footer{border-top:1px solid var(--line);padding:20px 0;color:var(--muted);font-size:13px}
-.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#1c2230;border:1px solid var(--card-border);color:#fff;font-size:14px;padding:11px 20px;border-radius:999px;opacity:0;transition:opacity .2s;pointer-events:none;box-shadow:0 6px 24px rgba(0,0,0,.4)}
+.empty{color:var(--muted);font-size:14px;padding:18px;text-align:center;border:1px dashed var(--line);border-radius:10px}
+.how h3{margin:18px 0 6px}
+.how p,.how li{font-size:14.5px;line-height:1.6;color:#2c2f38}
+.how ul{padding-left:20px}
+.kicker{display:inline-block;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-size:13px;border-radius:8px;padding:8px 12px;margin-top:10px}
+footer{border-top:1px solid var(--line);padding:18px 0;color:var(--muted);font-size:13px}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#17181c;color:#fff;font-size:14px;padding:10px 18px;border-radius:999px;opacity:0;transition:opacity .2s;pointer-events:none}
 .toast.show{opacity:1}
 @media(max-width:640px){
-  .wrap{padding:0 14px}
-  header .wrap{gap:10px}
-  nav{margin-left:0;order:3;width:100%;justify-content:space-between}
-  nav button{flex:1;text-align:center;padding:7px 6px;font-size:13px}
-  .hero h1{font-size:27px}
-  .card{padding:16px;border-radius:16px}
-  .verdict{gap:12px;padding:14px 16px}
-  .vlevel{font-size:19px}
+  .hero h1{font-size:22px}
+  header .wrap{gap:8px}
+  nav{margin-left:0}
+  .vlevel{font-size:17px}
   .bar .l{width:64px}
-  table.batch{font-size:13px}
-  table.batch th,table.batch td{padding:8px 8px}
+  table.batch .minibar{width:44px}
 }
 </style>
 </head>
@@ -134,8 +136,9 @@ footer{border-top:1px solid var(--line);padding:20px 0;color:var(--muted);font-s
     <textarea id="msg" placeholder="Paste the message here..." spellcheck="false"></textarea>
     <div class="chips" id="samples"></div>
     <div class="row">
-      <button class="primary" id="go">Analyze</button>
-      <span class="hint">Checks run fully in your browser. Nothing is sent anywhere.</span>
+      <button class="primary" id="go">Analyze (instant, in-browser)</button>
+      <button class="primary" id="golive" style="background:#0b5fff">Analyze live with the trained IBM model</button>
+      <span class="hint">Instant check runs fully in your browser - nothing is sent anywhere. Live mode sends only the message text to a small relay that asks IBM watsonx.ai.</span>
     </div>
   </div>
   <div id="result"></div>
@@ -177,14 +180,17 @@ footer{border-top:1px solid var(--line);padding:20px 0;color:var(--muted);font-s
   <div class="card how">
     <h3>1. The risk score comes from our own rules, not from IBM</h3>
     <p>A small set of plain rules (<code>rules.js</code> in the repo) looks for warning signs: urgency, requests for OTP/PIN/card details, money asks, prizes, threats, shortened or IP links, look-alike link names, odd domain endings, gift cards, too-good earnings, and shouting in capitals. Each matched rule adds points and shows you the exact text it matched.</p>
-    <h3>2. IBM Watson NLP is separate context, run by you in a notebook</h3>
-    <p>IBM's Watson NLP emotion model describes the feelings in a text. It does <b>not</b> decide whether a message is a scam (a prize scam reads as "joy"). IBM does not offer a free always-on way for a public website to call this model: the model only runs inside a watsonx.ai notebook runtime or a deployment that is billed per hour, and putting the account key in a public page would leak it. So the site keeps real Watson outputs that were run in a notebook and clearly labels them as saved results.</p>
+    <h3>2. Live check with the trained IBM scam model</h3>
+    <p>The <b>Analyze live</b> button sends only the message text to a small relay (a Cloudflare Worker). The relay keeps the account key secret, asks IBM watsonx.ai to score the text with the model trained for this project (TF-IDF + SVM ensemble on the UCI SMS Spam Collection, 98.55% held-out accuracy), and returns spam or ham with the model's scores. To stay inside IBM's free quota, the scoring deployment is created on demand and automatically deleted after about 10 idle minutes - so the first live call after a quiet period can take 1-2 minutes while it wakes up. Live calls are rate-limited to protect the quota.</p>
+    <h3>3. IBM Watson NLP emotion results are separate context, run by you in a notebook</h3>
+    <p>IBM's Watson NLP emotion model describes the feelings in a text. It does <b>not</b> decide whether a message is a scam (a prize scam reads as "joy"). Putting the account key in a public page would leak it, so the site keeps real Watson emotion outputs that were run in a notebook and clearly labels them as saved results.</p>
     <p>To analyse a new message with Watson: on the result card press <b>Copy notebook cell</b>, run it in your watsonx.ai Studio notebook (runtime "NLP + DO Runtime ... XS", about 6 capacity units per hour from the free 10 per month - stop the runtime when done), then paste the printed JSON back into <b>Add IBM Watson result</b>.</p>
-    <h3>3. Honest limits</h3>
+    <h3>4. Honest limits</h3>
     <ul>
       <li>Rule-based checks miss new tricks and sometimes flag genuine messages (a real OTP notice mentions "OTP").</li>
       <li>A low score says "few warning signs - safety NOT established". It never means proven safe.</li>
       <li>Small hand-written tests (36 messages) gave a rough picture only: they do not measure real-world accuracy.</li>
+      <li>The live model was trained on 2011-era English SMS spam. New scams, other languages and WhatsApp-specific tricks may score poorly, and its percentage is an internal score, not a calibrated probability.</li>
       <li>When unsure: do not click links or share codes. Contact the company through its official app or number.</li>
     </ul>
     <div class="kicker">This tool is a helper, not a judge. The final call is yours.</div>
@@ -193,7 +199,7 @@ footer{border-top:1px solid var(--line);padding:20px 0;color:var(--muted);font-s
 
 </main>
 <footer><div class="wrap">
-  Built with explainable rules. IBM Watson NLP results shown are real saved notebook outputs, labelled as such. Source: github.com/hadhiabdulla/scam-message-analyzer
+  Built with explainable rules plus a trained IBM watsonx.ai model. Live model calls and saved notebook outputs are each labelled as what they are. Source: github.com/hadhiabdulla/scam-message-analyzer
 </div></footer>
 <div class="toast" id="toast"></div>
 
@@ -298,11 +304,50 @@ $("go").onclick=()=>{
   saveHistory(text,r);
   renderResult(text,r);
 };
+
+/* live scoring via Cloudflare relay -> IBM watsonx.ai (on-demand deployment) */
+const LIVE_URL="https://scam-analyzer-proxy.hadhiabdulla-iet.workers.dev/analyze";
+async function liveScore(text){
+  for(let a=0;a<10;a++){
+    let resp;
+    try{resp=await fetch(LIVE_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text})});}
+    catch(e){throw new Error("could not reach the live scoring relay");}
+    if(resp.status===202){await new Promise(res=>setTimeout(res,15000));continue;}
+    const data=await resp.json().catch(()=>({}));
+    if(resp.ok&&data&&data.label)return data;
+    if(resp.status===429)throw new Error("live scoring is rate-limited right now (this protects the free quota) - try again later");
+    throw new Error("live scoring failed (HTTP "+resp.status+")");
+  }
+  throw new Error("the model is still waking up - try again in about a minute");
+}
+$("golive").onclick=async()=>{
+  const text=$("msg").value;
+  if(!text.trim()){toast("Paste a message first");return;}
+  const r=analyze(text);lastAnalysis={text:text,result:r};saveHistory(text,r);renderResult(text,r);
+  const slot=$("liveslot");
+  slot.innerHTML=`<div class="card"><h3>Trained scam model - live IBM watsonx.ai</h3><p class="hint">Sending the message text to IBM watsonx.ai... After a quiet period the model wakes up on demand, which can take 1-2 minutes on the first call. Please wait.</p></div>`;
+  try{
+    const d=await liveScore(text);
+    if(!lastAnalysis||lastAnalysis.text!==text)return;
+    const spam=d.confidence_spam*100, ham=(typeof d.confidence_ham==="number"?d.confidence_ham*100:100-spam);
+    const isSpam=d.label==="spam";
+    slot.innerHTML=`<div class="card"><h3>Trained scam model - live IBM watsonx.ai</h3>
+      <span class="badge" style="background:#e6f4ea;color:#1e7e34">Live result - real call to IBM watsonx.ai just now (${new Date().toLocaleTimeString()})</span>
+      <div class="verdict ${isSpam?"high":"grey"}"><div><div class="vlevel">${isSpam?"Model says: spam/scam":"Model says: normal message (ham)"}</div>
+      <div class="hint">${spam.toFixed(1)}% spam / ${ham.toFixed(1)}% ham - the model's own score, not a calibrated probability</div></div>
+      <div class="scorewrap"><div class="scorebar"><div class="scorefill" style="width:${Math.min(100,spam)}%"></div></div>
+      <div class="scorenum">${esc(d.producer||"")}</div></div></div>
+      <p class="hint">Model: TF-IDF + SVM ensemble trained on the UCI SMS Spam Collection (98.55% held-out accuracy). Spam/ham labels come from that dataset. A low spam score is not proof a message is safe. The scoring deployment is created on demand and automatically deleted after about 10 idle minutes to stay inside the free IBM quota.</p>
+    </div>`;
+  }catch(e){
+    slot.innerHTML=`<div class="card"><h3>Trained scam model - live IBM watsonx.ai</h3><p class="hint">Live scoring unavailable: ${esc(e.message)}. The instant in-browser result above still applies.</p></div>`;
+  }
+};
 function renderResult(text,r){
   const cls=levelClass(r.level);
   const hl=highlighted(text,r.signals);
   let h=`<div class="card"><div class="verdict ${cls}">
-    <div><div class="vlevel">${esc(r.level)}</div><div class="hint">Method: in-browser rules check (details in How it works)</div></div>
+    <div><div class="vlevel">${esc(r.level)}</div><div class="hint">Verdict from our own rules, not from IBM.</div></div>
     <div class="scorewrap"><div class="scorebar"><div class="scorefill" style="width:${r.score}%"></div></div>
     <div class="scorenum">Score ${r.score}/100 - sum of matched rule weights, capped at 100</div></div>
   </div>`;
@@ -316,6 +361,7 @@ function renderResult(text,r){
     :`<p class="hint">No warning signs matched our rules. That does not prove the message is safe - new tricks may not be covered.</p>`;
   h+=`<div class="row"><button class="ghost" id="copyrep">Copy report</button></div></div>`;
 
+  h+=`<div id="liveslot"></div>`;
   const w=watsonFor(text);
   h+=`<div class="card watson"><h3>IBM Watson NLP: emotion in the text</h3>`;
   if(w){
