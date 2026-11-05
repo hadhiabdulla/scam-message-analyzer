@@ -343,11 +343,11 @@ $("golive").onclick=async()=>{
     const d=await liveScore(text,stage);
     if(!lastAnalysis||lastAnalysis.text!==text){clearInterval(timer);goBtn.disabled=false;liveBtn.disabled=false;liveBtn.textContent=oldLabel;return;}
     const spam=d.confidence_spam*100, ham=(typeof d.confidence_ham==="number"?d.confidence_ham*100:100-spam);
-    const isSpam=d.label==="spam";
+    const isSpam=d.label==="spam", borderline=spam>=45&&spam<=55;
     slot.innerHTML=`<div class="card"><h3>Trained spam classifier - live IBM watsonx.ai</h3>
       <span class="badge" style="background:rgba(46,204,113,.16);color:#7be3a8;border:1px solid rgba(46,204,113,.4)">Live result - real call to IBM watsonx.ai just now (${new Date().toLocaleTimeString()})</span>
-      <div class="verdict ${isSpam?"high":"grey"}"><div><div class="vlevel">${isSpam?"Model says: spam":"Model says: ham (not spam)"}</div>
-      <div class="hint">${spam.toFixed(1)}% spam / ${ham.toFixed(1)}% ham - the model's internal SVM score, not a calibrated probability</div></div>
+      <div class="verdict ${borderline?"susp":(isSpam?"high":"grey")}"><div><div class="vlevel">${borderline?"Model is unsure":(isSpam?"Model says: spam":"Model says: ham (not spam)")}</div>
+      <div class="hint">${spam.toFixed(1)}% spam / ${ham.toFixed(1)}% ham - the model's internal SVM score, not a calibrated probability${borderline?". The scores are nearly equal, so the model cannot decide on this message - judge it by the warning signs above":""}</div></div>
       <div class="scorewrap"><div class="scorebar"><div class="scorefill" style="width:${Math.min(100,spam)}%"></div></div>
       <div class="scorenum">${esc(d.producer||"")}</div></div></div>
       <p class="hint">Model: TF-IDF + SVM ensemble trained on the UCI SMS Spam Collection (5,574 English SMS messages from 2011). 98.55% is accuracy on a held-out split of that dataset, not on modern scam messages - new tricks, other languages and chat-app scams can be missed. Spam/ham are the dataset's labels; the model was not trained on fraud specifically. A low spam score is not proof a message is safe. The scoring deployment is created on demand and automatically deleted after about 20-25 minutes to stay inside the free IBM quota.</p>
