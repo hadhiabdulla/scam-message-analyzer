@@ -1,38 +1,65 @@
 # Scam Message Analyzer
 
-Paste a suspicious message and get a risk level with plain-English reasons.
+Paste a suspicious message and get a risk level with plain-English reasons, the exact
+warning signs highlighted in your text, batch checking for many messages at once, and a
+private on-browser history.
 
-Two separate parts, never mixed:
-1. **Our own rules** (`rules.py`): checks for urgency, asking for OTP/PIN, asking for money, prizes, threats, shortened or IP links, odd domains, shouting. This produces the risk score.
-2. **IBM Watson NLP** (real, run in a watsonx.ai Studio notebook): describes the emotion of the text. It does NOT decide "scam".
+**Live website:** hosted with GitHub Pages from this repo (see the repo's Pages settings).
+The site is static: every check runs in your browser and nothing is sent anywhere.
 
-## Run the app (no install, Python 3 only)
-    python3 server.py
-Open http://localhost:8000 and paste a message.
+## What's here
+- `index.html`, `rules.js`, `watson-data.js` - the website (open `index.html` directly or via the Pages link).
+- `rules.py` - the same rules in Python, used by the tests and the optional local server.
+- `local-server/` - the original small local app (`python3 local-server/server.py`, then http://localhost:8000).
+- `test_messages.py`, `heldout_messages.py`, `evaluate.py`, `evaluate_heldout.py` - test sets and runners.
+- `parity_test.py` - proves the JS and Python rules give identical results on all test messages (needs node).
+- `notebook_cell.py` - the watsonx.ai notebook cell for real IBM Watson NLP runs.
+- `watson_results.json` - real saved IBM outputs (5 messages, two notebook runs on 5 Nov 2026).
+- `evaluation_history_v1.txt`, `evaluation_heldout_v2.txt` - older results, kept honestly.
 
-## About the Watson results (be clear on this)
-`watson_results.json` holds output from one real notebook run (5 Nov 2026, model `emotion_aggregated-workflow_en_stock`) for 4 sample messages. The app shows it only for those exact messages and labels it "saved result". For any other message it says "not available". It is not a live call.
+## Two separate parts, never mixed
+1. **Our own rules** produce the risk score: urgency, OTP/PIN/card-detail requests, money
+   asks, prizes, threats, shortened/IP/look-alike links, odd domain endings, gift cards,
+   too-good earnings, shouting. Every matched rule shows the exact text it matched.
+2. **IBM Watson NLP** (real, run by you in a watsonx.ai Studio notebook) describes the
+   emotion of the text. It does NOT decide "scam" (a prize scam reads as "joy").
 
-To get Watson output for your own messages:
-1. Create a free IBM Cloud trial account, open watsonx.ai, create a project.
-2. New asset > Jupyter notebook, runtime "NLP + DO Runtime XS" (uses 6 capacity units/hour of the free 10/month, so stop the runtime when done: project > Manage > Environments > Stop).
-3. Paste `notebook_cell.py`, put your message in `MESSAGES`, run it, and copy the one line of JSON it prints.
-4. In the app, open "Add IBM Watson result from your notebook", paste it, press Save. The app checks the shape and only then stores it. Analyze the same message again to see the Watson card.
+## Why Watson is not a live call on the website
+There is no free always-on way for a public web page to call this IBM model:
+- The model only runs inside a notebook runtime or a deployment. On the free Lite plan the
+  notebook runtime costs about 6 capacity units per hour from a free 10 per month; an
+  always-on deployment would exceed the free allowance in hours and then needs payment.
+- Calling IBM from a public page would require putting the account API key in public
+  client-side code, which would leak it. A server-side proxy means hosting and billing.
 
-This import path was tested end to end with a new message (a fake "Amazon order on hold" text): real notebook run, copied output, saved through the app, shown as bars. It is a manual step, not a live API.
+So the site keeps real notebook outputs, labels them "saved result, not a live call", and
+makes the new-message path as short as possible:
+1. Analyze your message on the site.
+2. Press **Copy notebook cell for this message** (the cell is prepared with your text).
+3. Run it in your watsonx.ai notebook (runtime "NLP + DO Runtime ... XS"; stop the runtime
+   after - it bills about 6 CU/hour against the free 10/month).
+4. Paste the printed JSON into **Add IBM Watson result**. The shape is checked before
+   saving; results are stored only in your browser.
 
-## Test results (`python3 evaluate.py`)
-20 hand-written messages (10 scam-like, 10 normal, some tricky; not real people's messages). Rules were not tuned to these tests.
-- 17/20 correct. 8/10 scams caught. 1/10 normal flagged (a genuine bank OTP notice, because it mentions OTP).
-- Missed: a "legal action, pay with gift cards" message and an "earn Rs 5000 daily" message (few trigger words).
-- Small test set: treat these numbers as a rough guide, not proof. A rule-based checker will miss new tricks and flag some real alerts. Never rely on it alone; do not click links or share OTPs.
+This path was tested end to end with a new message (a fake "Amazon order on hold" text):
+real notebook run, copied output, saved in the app, shown as bars.
 
-Watson emotion alone does not separate scams from normal text (a prize scam scored high "joy", like a friendly message), which is why it is shown as context only.
+## Test results (`python3 evaluate.py`, `python3 evaluate_heldout.py`)
+Hand-written messages (not real people's), small sets - a rough guide, not proof of
+real-world accuracy.
+- v1 rules, 20 development messages: 17/20 correct, 8/10 scams caught, 1/10 false alarm
+  (`evaluation_history_v1.txt`).
+- v2 rules (added card/login detail requests, gift cards, easy-money, look-alike links),
+  same dev set: 19/20 (tuned on it, so this number means little).
+- Held-out set of 16 written after the rule changes, not tuned on: 14/16 correct, 8/8
+  scams caught, 2/8 genuine messages wrongly flagged (a real OTP notice and a "password
+  was changed" notice) (`evaluation_heldout_v2.txt`). Left as is.
+- `python3 parity_test.py`: 36/36 identical results between rules.js and rules.py.
 
-## Rules update and evaluation history (kept, not hidden)
-- v1 (first rules), 20 development messages: 17/20 correct, 8/10 scams caught, 1/10 false alarm. Saved in `evaluation_history_v1.txt`.
-- A new test message (fake Amazon "confirm your card details at amzn-secure-pay.top") scored only 15/100 and was labelled "Low risk". That was a real miss.
-- v2 added rules for: card/bank/login detail requests, gift cards or vouchers, easy-money promises, look-alike links. Development set after changes: 19/20 (tuned on those messages, so this number means little).
-- Held-out set written after the changes, not used for tuning (`heldout_messages.py`, `evaluation_heldout_v2.txt`): 14/16 correct, 8/8 scams caught, 2/8 normal messages wrongly flagged (a genuine OTP notice and a "password was changed" notice). These were left as is.
-- 16 and 20 hand-written messages do not measure real-world accuracy. Expect both misses and false alarms.
-- A low score is shown as "Few warning signs - safety NOT established" (grey), never as green "safe". Zero rules matching does not mean a message is safe.
+A low score is shown as "Few warning signs - safety NOT established" (grey), never green
+"safe". Rule-based checks miss new tricks and flag some real alerts. Never rely on this
+alone; do not click links or share OTPs.
+
+## Privacy
+Checks run in your browser. History and imported Watson results are stored only in the
+browser's local storage on your device; clearing site data removes them.
