@@ -10,7 +10,7 @@ The site is static: every check runs in your browser and nothing is sent anywher
 ## What's here
 - `index.html`, `rules.js`, `watson-data.js` - the website (open `index.html` directly or via the Pages link).
 - `rules.py` - the same rules in Python, used by the tests and the optional local server.
-- `local-server/` - the original small local app (`python3 local-server/server.py`, then http://localhost:8000).
+- `server.py` - optional small local server (`python3 server.py`, then http://localhost:8000). Not required: the website is fully static, but this also exposes `/analyze` and `/import` endpoints.
 - `test_messages.py`, `heldout_messages.py`, `evaluate.py`, `evaluate_heldout.py` - test sets and runners.
 - `parity_test.py` - proves the JS and Python rules give identical results on all test messages (needs node).
 - `notebook_cell.py` - the watsonx.ai notebook cell for real IBM Watson NLP runs.
