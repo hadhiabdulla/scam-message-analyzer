@@ -110,6 +110,11 @@ footer{border-top:1px solid var(--line);padding:20px 0;color:var(--muted);font-s
   table.batch{font-size:13px}
   table.batch th,table.batch td{padding:8px 8px}
 }
+button.primary:disabled{opacity:.65;cursor:wait;transform:none}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:rot 1s linear infinite;vertical-align:-2px;margin-right:7px}
+.spin.dark{border-color:rgba(124,108,255,.25);border-top-color:var(--accent)}
+@keyframes rot{to{transform:rotate(360deg)}}
+.livestatus{font-weight:700;font-size:15px;color:var(--ink);margin:4px 0}
 </style>
 </head>
 <body>
@@ -305,12 +310,12 @@ $("go").onclick=()=>{
 
 /* live scoring via Cloudflare relay -> IBM watsonx.ai (on-demand deployment) */
 const LIVE_URL="https://scam-analyzer-proxy.hadhiabdulla-iet.workers.dev/analyze";
-async function liveScore(text){
+async function liveScore(text,onStage){
   for(let a=0;a<20;a++){
     let resp;
     try{resp=await fetch(LIVE_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text})});}
     catch(e){throw new Error("could not reach the live scoring relay");}
-    if(resp.status===202){await new Promise(res=>setTimeout(res,15000));continue;}
+    if(resp.status===202){if(onStage)onStage("warming",a+1);await new Promise(res=>setTimeout(res,15000));continue;}
     const data=await resp.json().catch(()=>({}));
     if(resp.ok&&data&&data.label)return data;
     if(resp.status===429)throw new Error("live scoring is rate-limited right now (this protects the free quota) - try again later");
@@ -322,12 +327,21 @@ async function liveScore(text){
 $("golive").onclick=async()=>{
   const text=$("msg").value;
   if(!text.trim()){toast("Paste a message first");return;}
+  const goBtn=$("go"), liveBtn=$("golive"), oldLabel=liveBtn.textContent;
+  goBtn.disabled=true; liveBtn.disabled=true;
+  liveBtn.innerHTML=`<span class="spin"></span>Contacting IBM...`;
   const r=analyze(text);lastAnalysis={text:text,result:r};saveHistory(text,r);renderResult(text,r);
-  const slot=$("liveslot");
-  slot.innerHTML=`<div class="card"><h3>Trained spam classifier - live IBM watsonx.ai</h3><p class="hint">Sending the message text to IBM watsonx.ai... After a quiet period the model wakes up on demand, which can take a few minutes on the first call. Please wait.</p></div>`;
+  const slot=$("liveslot"), t0=Date.now();
+  slot.innerHTML=`<div class="card"><h3>Trained spam classifier - live IBM watsonx.ai</h3>
+    <p class="livestatus"><span class="spin dark"></span><span id="livestage">Sending the message text to IBM watsonx.ai...</span></p>
+    <p class="hint">Elapsed: <b id="liveelapsed">0:00</b> - after a quiet period the model wakes up on demand, which can take a few minutes on the first call. This updates by itself; no need to press anything.</p></div>`;
+  slot.scrollIntoView({behavior:"smooth",block:"center"});
+  const timer=setInterval(()=>{const e=$("liveelapsed");if(e){const s=Math.floor((Date.now()-t0)/1000);e.textContent=Math.floor(s/60)+":"+String(s%60).padStart(2,"0");}},1000);
+  const stage=(k,a)=>{const e=$("livestage");if(!e)return;
+    e.textContent=k==="warming"?("Model is waking up - check "+a+" of 20. Still working, please wait..."):"Sending the message text to IBM watsonx.ai...";};
   try{
-    const d=await liveScore(text);
-    if(!lastAnalysis||lastAnalysis.text!==text)return;
+    const d=await liveScore(text,stage);
+    if(!lastAnalysis||lastAnalysis.text!==text){clearInterval(timer);goBtn.disabled=false;liveBtn.disabled=false;liveBtn.textContent=oldLabel;return;}
     const spam=d.confidence_spam*100, ham=(typeof d.confidence_ham==="number"?d.confidence_ham*100:100-spam);
     const isSpam=d.label==="spam";
     slot.innerHTML=`<div class="card"><h3>Trained spam classifier - live IBM watsonx.ai</h3>
@@ -338,8 +352,12 @@ $("golive").onclick=async()=>{
       <div class="scorenum">${esc(d.producer||"")}</div></div></div>
       <p class="hint">Model: TF-IDF + SVM ensemble trained on the UCI SMS Spam Collection (5,574 English SMS messages from 2011). 98.55% is accuracy on a held-out split of that dataset, not on modern scam messages - new tricks, other languages and chat-app scams can be missed. Spam/ham are the dataset's labels; the model was not trained on fraud specifically. A low spam score is not proof a message is safe. The scoring deployment is created on demand and automatically deleted after about 20-25 minutes to stay inside the free IBM quota.</p>
     </div>`;
+    slot.scrollIntoView({behavior:"smooth",block:"center"});
   }catch(e){
-    slot.innerHTML=`<div class="card"><h3>Trained spam classifier - live IBM watsonx.ai</h3><p class="hint">Live scoring unavailable: ${esc(e.message)}. The instant in-browser result above still applies.</p></div>`;
+    slot.innerHTML=`<div class="card"><h3>Trained spam classifier - live IBM watsonx.ai</h3><p class="hint"><b>Live scoring did not finish:</b> ${esc(e.message)}. The instant in-browser result above still applies.</p></div>`;
+    slot.scrollIntoView({behavior:"smooth",block:"center"});
+  }finally{
+    clearInterval(timer);goBtn.disabled=false;liveBtn.disabled=false;liveBtn.textContent=oldLabel;
   }
 };
 function renderResult(text,r){
