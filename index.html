@@ -1,0 +1,52 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Scam Message Analyzer</title>
+<style>
+body{font-family:system-ui,Arial,sans-serif;max-width:760px;margin:30px auto;padding:0 16px;color:#1c1c1c}
+h1{margin-bottom:4px} .sub{color:#555;margin-top:0}
+textarea{width:100%;height:130px;font-size:16px;padding:10px;box-sizing:border-box}
+button{font-size:16px;padding:10px 18px;margin-top:10px;background:#0f62fe;color:#fff;border:0;border-radius:4px;cursor:pointer}
+.card{border-radius:6px;padding:14px 16px;margin-top:18px;border:1px solid #ccc}
+.High{background:#fdecea;border-color:#d93025}.Suspicious{background:#fff4e0;border-color:#e08a00}.Few,.No{background:#eceff1;border-color:#78909c}
+.big{font-size:22px;font-weight:700} li{margin:6px 0} .tag{font-weight:600}
+.watson{background:#eef3ff;border:1px solid #0f62fe} .note{color:#555;font-size:14px}
+.bar{display:flex;align-items:center;margin:4px 0;font-size:15px}.bar span.l{width:80px}.bar .t{flex:1;background:#d0def7;height:12px;border-radius:6px;overflow:hidden}.bar .f{background:#0f62fe;height:100%}.bar span.v{width:48px;text-align:right}
+details{margin-top:8px} summary{cursor:pointer;color:#0f62fe} textarea.imp{height:90px;font-size:13px}
+.card{overflow-wrap:anywhere} @media(max-width:520px){body{margin:14px auto}.big{font-size:19px}.bar span.l{width:64px}}
+</style></head><body>
+<h1>Scam Message Analyzer</h1>
+<p class="sub">Paste a message. You get a risk level and the reasons, in plain words.</p>
+<textarea id="t" placeholder="Paste the message here..."></textarea><br>
+<button onclick="go()">Analyze</button>
+<div id="out"></div>
+<details class="card"><summary>Add IBM Watson result from your notebook</summary>
+<p class="note">Run notebook_cell.py in watsonx, then paste the JSON it prints here. It is saved only if it has the right shape.</p>
+<textarea class="imp" id="imp" placeholder="Paste notebook JSON here..."></textarea><br><button onclick="imp()">Save Watson result</button> <span id="impmsg" class="note"></span></details>
+<p class="note">Limits: this is a helper, not a judge. It can miss scams and can flag real messages. When unsure, do not click links or share codes; contact the company using its official app or number.</p>
+<script>
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+async function go(){
+  const text=document.getElementById('t').value;
+  const r=await (await fetch('/analyze',{method:'POST',body:JSON.stringify({text})})).json();
+  const cls=r.level.split(' ')[0];
+  let h=`<div class="card ${cls}"><div class="big">${esc(r.level)} (score ${r.score}/100)</div>
+  <p class="note">Score comes from our own rules below, not from IBM.</p>`;
+  h+= r.signals.length? '<ul>'+r.signals.map(s=>`<li><span class="tag">${esc(s.rule.replace(/_/g,' '))}</span> (+${s.weight}): ${esc(s.why)} <i>Matched: "${esc(s.matched)}"</i></li>`).join('')+'</ul>' : '<p>No warning signs found by our rules. That does not prove the message is safe.</p>';
+  h+='</div>';
+  const w=r.watson;
+  h+='<div class="card watson"><b>IBM Watson NLP: emotion in the text</b>';
+  if(w.status==='not_available'){h+=`<p>${esc(w.note)}</p>`}
+  else{
+    h+='<p class="note">Saved result from a real IBM Watson NLP notebook run (not a live call). It describes feelings in the text. It does not say if it is a scam.</p>';
+    h+=Object.entries(w.emotion).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="bar"><span class="l">${esc(k)}</span><span class="t"><div class="f" style="width:${Math.round(v*100)}%"></div></span><span class="v">${(v*100).toFixed(0)}%</span></div>`).join('');
+    h+=`<details><summary>Raw saved result</summary><pre>${esc(JSON.stringify(w,null,2))}</pre></details>`;
+  }
+  h+='</div>';
+  document.getElementById('out').innerHTML=h;
+}
+async function imp(){
+  const m=document.getElementById('impmsg');
+  try{const r=await (await fetch('/import',{method:'POST',body:document.getElementById('imp').value})).json();
+    m.textContent=r.ok?('Saved '+r.added+' result(s). Press Analyze again.'):('Not saved: '+r.error);}
+  catch(e){m.textContent='Not saved: that is not valid JSON.'}
+}
+</script></body></html>
