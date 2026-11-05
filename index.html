@@ -1,52 +1,421 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Scam Message Analyzer - paste a suspicious message, get a risk level with plain-English reasons, highlighted warning signs, batch checks and history.">
 <title>Scam Message Analyzer</title>
 <style>
-body{font-family:system-ui,Arial,sans-serif;max-width:760px;margin:30px auto;padding:0 16px;color:#1c1c1c}
-h1{margin-bottom:4px} .sub{color:#555;margin-top:0}
-textarea{width:100%;height:130px;font-size:16px;padding:10px;box-sizing:border-box}
-button{font-size:16px;padding:10px 18px;margin-top:10px;background:#0f62fe;color:#fff;border:0;border-radius:4px;cursor:pointer}
-.card{border-radius:6px;padding:14px 16px;margin-top:18px;border:1px solid #ccc}
-.High{background:#fdecea;border-color:#d93025}.Suspicious{background:#fff4e0;border-color:#e08a00}.Few,.No{background:#eceff1;border-color:#78909c}
-.big{font-size:22px;font-weight:700} li{margin:6px 0} .tag{font-weight:600}
-.watson{background:#eef3ff;border:1px solid #0f62fe} .note{color:#555;font-size:14px}
-.bar{display:flex;align-items:center;margin:4px 0;font-size:15px}.bar span.l{width:80px}.bar .t{flex:1;background:#d0def7;height:12px;border-radius:6px;overflow:hidden}.bar .f{background:#0f62fe;height:100%}.bar span.v{width:48px;text-align:right}
-details{margin-top:8px} summary{cursor:pointer;color:#0f62fe} textarea.imp{height:90px;font-size:13px}
-.card{overflow-wrap:anywhere} @media(max-width:520px){body{margin:14px auto}.big{font-size:19px}.bar span.l{width:64px}}
-</style></head><body>
-<h1>Scam Message Analyzer</h1>
-<p class="sub">Paste a message. You get a risk level and the reasons, in plain words.</p>
-<textarea id="t" placeholder="Paste the message here..."></textarea><br>
-<button onclick="go()">Analyze</button>
-<div id="out"></div>
-<details class="card"><summary>Add IBM Watson result from your notebook</summary>
-<p class="note">Run notebook_cell.py in watsonx, then paste the JSON it prints here. It is saved only if it has the right shape.</p>
-<textarea class="imp" id="imp" placeholder="Paste notebook JSON here..."></textarea><br><button onclick="imp()">Save Watson result</button> <span id="impmsg" class="note"></span></details>
-<p class="note">Limits: this is a helper, not a judge. It can miss scams and can flag real messages. When unsure, do not click links or share codes; contact the company using its official app or number.</p>
+:root{
+  --accent:#4f46e5; --accent-soft:#eef0fe;
+  --high:#b3261e; --high-bg:#fdeceb;
+  --susp:#9a6200; --susp-bg:#fff4e0;
+  --grey:#5f6368; --grey-bg:#eef1f4;
+  --ink:#17181c; --muted:#5c6270; --line:#e3e5ea; --card:#ffffff;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:#f6f7f9;color:var(--ink)}
+header{background:#17181c;color:#fff;padding:14px 0;position:sticky;top:0;z-index:10}
+.wrap{max-width:920px;margin:0 auto;padding:0 16px}
+header .wrap{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.logo{font-size:18px;font-weight:700;letter-spacing:.2px}
+.logo .dot{color:#8b93ff}
+nav{margin-left:auto;display:flex;gap:4px;flex-wrap:wrap}
+nav button{background:transparent;color:#c8cbd6;border:0;font-size:14px;padding:7px 12px;border-radius:999px;cursor:pointer}
+nav button.on{background:#2e3040;color:#fff}
+nav button:hover{color:#fff}
+main{padding:26px 0 60px}
+.view{display:none}.view.on{display:block}
+.hero{margin:6px 0 20px}
+.hero h1{font-size:28px;margin:0 0 6px}
+.hero p{margin:0;color:var(--muted);font-size:15px;max-width:640px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-top:16px;box-shadow:0 1px 2px rgba(20,20,40,.04)}
+label.lbl{font-weight:600;font-size:14px;display:block;margin-bottom:8px}
+textarea{width:100%;min-height:120px;font-size:15px;line-height:1.5;padding:12px;border:1px solid var(--line);border-radius:10px;resize:vertical;font-family:inherit}
+textarea:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:transparent}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}
+button.primary{background:var(--accent);color:#fff;border:0;font-size:15px;font-weight:600;padding:11px 22px;border-radius:10px;cursor:pointer}
+button.primary:hover{background:#4338ca}
+button.ghost{background:#fff;color:var(--accent);border:1px solid #c9cdf5;font-size:14px;font-weight:600;padding:9px 16px;border-radius:10px;cursor:pointer}
+button.ghost:hover{background:var(--accent-soft)}
+button.linklike{background:none;border:0;color:var(--accent);cursor:pointer;font-size:13px;padding:4px 0;text-decoration:underline}
+.hint{font-size:13px;color:var(--muted)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;font-size:13px;padding:6px 12px;cursor:pointer;color:#3a3f4d}
+.chip:hover{border-color:var(--accent);color:var(--accent)}
+.chip.scam{border-color:#f0c4c0}.chip.ok{border-color:#c4e0c8}
+.verdict{border-radius:12px;padding:14px 16px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.verdict.high{background:var(--high-bg);border:1px solid #e8a9a4}
+.verdict.susp{background:var(--susp-bg);border:1px solid #ecc989}
+.verdict.grey{background:var(--grey-bg);border:1px solid #c9ced6}
+.vlevel{font-size:20px;font-weight:800}
+.high .vlevel{color:var(--high)} .susp .vlevel{color:var(--susp)} .grey .vlevel{color:var(--grey)}
+.scorewrap{flex:1;min-width:180px}
+.scorebar{height:10px;background:rgba(0,0,0,.08);border-radius:6px;overflow:hidden}
+.scorefill{height:100%;border-radius:6px}
+.high .scorefill{background:var(--high)} .susp .scorefill{background:#e08a00} .grey .scorefill{background:#90a4ae}
+.scorenum{font-size:13px;color:var(--muted);margin-top:4px}
+.msgbox{background:#fbfbfc;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:15px;line-height:1.75;white-space:pre-wrap;overflow-wrap:anywhere}
+mark{border-radius:4px;padding:1px 2px;border-bottom:2px solid rgba(0,0,0,.25);cursor:help}
+.legend{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.lg{font-size:12px;border-radius:6px;padding:3px 8px;border:1px solid var(--line);display:inline-flex;align-items:center;gap:6px}
+.lg .sw{width:10px;height:10px;border-radius:3px;display:inline-block}
+ul.sigs{margin:12px 0 0;padding:0;list-style:none}
+ul.sigs li{padding:10px 12px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;font-size:14px}
+ul.sigs .tag{font-weight:700}
+ul.sigs .w{color:var(--muted);font-size:13px}
+ul.sigs .match{display:block;margin-top:4px;font-size:13px;color:var(--muted);font-style:italic;overflow-wrap:anywhere}
+.watson{border:1px solid #c3cbff;background:var(--accent-soft)}
+.watson h3{margin:0 0 4px;font-size:16px}
+.badge{display:inline-block;font-size:12px;font-weight:700;color:#3730a3;background:#dfe3ff;border-radius:6px;padding:2px 8px;margin-bottom:8px}
+.bar{display:flex;align-items:center;gap:10px;margin:7px 0;font-size:14px}
+.bar .l{width:76px;text-transform:capitalize}
+.bar .t{flex:1;background:#d5dbfa;height:12px;border-radius:6px;overflow:hidden}
+.bar .f{background:var(--accent);height:100%}
+.bar .v{width:44px;text-align:right;font-variant-numeric:tabular-nums}
+details{margin-top:10px}summary{cursor:pointer;color:var(--accent);font-size:14px}
+pre{background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px;font-size:12px;overflow-x:auto;white-space:pre-wrap;overflow-wrap:anywhere}
+textarea.code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;min-height:150px}
+table.batch{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}
+table.batch th{text-align:left;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;padding:8px 10px;border-bottom:2px solid var(--line)}
+table.batch td{padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
+tr.brow{cursor:pointer} tr.brow:hover{background:#fafafe}
+.pill{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:3px 10px;white-space:nowrap}
+.pill.high{background:var(--high-bg);color:var(--high)}
+.pill.susp{background:var(--susp-bg);color:var(--susp)}
+.pill.grey{background:var(--grey-bg);color:var(--grey)}
+.minibar{width:70px;height:8px;background:#e8eaef;border-radius:4px;overflow:hidden;display:inline-block;vertical-align:middle;margin-right:8px}
+.minibar i{display:block;height:100%}
+.excerpt{overflow-wrap:anywhere}
+.detail{background:#fafafc}
+.detail ul{margin:8px 0 4px;padding-left:18px;font-size:13px}
+.detail li{margin:4px 0}
+.summary{display:flex;gap:14px;flex-wrap:wrap;font-size:14px;margin-top:12px}
+.summary b{font-size:16px}
+.hitem{display:flex;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;cursor:pointer;background:#fff}
+.hitem:hover{border-color:var(--accent)}
+.hitem .hx{flex:1;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hitem .ht{font-size:12px;color:var(--muted);white-space:nowrap}
+.empty{color:var(--muted);font-size:14px;padding:18px;text-align:center;border:1px dashed var(--line);border-radius:10px}
+.how h3{margin:18px 0 6px}
+.how p,.how li{font-size:14.5px;line-height:1.6;color:#2c2f38}
+.how ul{padding-left:20px}
+.kicker{display:inline-block;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-size:13px;border-radius:8px;padding:8px 12px;margin-top:10px}
+footer{border-top:1px solid var(--line);padding:18px 0;color:var(--muted);font-size:13px}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#17181c;color:#fff;font-size:14px;padding:10px 18px;border-radius:999px;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.show{opacity:1}
+@media(max-width:640px){
+  .hero h1{font-size:22px}
+  header .wrap{gap:8px}
+  nav{margin-left:0}
+  .vlevel{font-size:17px}
+  .bar .l{width:64px}
+  table.batch .minibar{width:44px}
+}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="logo">Scam Message Analyzer<span class="dot">.</span></div>
+  <nav id="nav">
+    <button data-v="check" class="on">Check a message</button>
+    <button data-v="batch">Batch check</button>
+    <button data-v="history">History</button>
+    <button data-v="how">How it works</button>
+  </nav>
+</div></header>
+<main class="wrap">
+
+<section id="v-check" class="view on">
+  <div class="hero">
+    <h1>Is this message a scam?</h1>
+    <p>Paste a suspicious SMS, WhatsApp or email text. You get a risk level, the exact warning signs highlighted in your message, and plain-English reasons.</p>
+  </div>
+  <div class="card">
+    <label class="lbl" for="msg">Message to check</label>
+    <textarea id="msg" placeholder="Paste the message here..." spellcheck="false"></textarea>
+    <div class="chips" id="samples"></div>
+    <div class="row">
+      <button class="primary" id="go">Analyze</button>
+      <span class="hint">Checks run fully in your browser. Nothing is sent anywhere.</span>
+    </div>
+  </div>
+  <div id="result"></div>
+</section>
+
+<section id="v-batch" class="view">
+  <div class="hero">
+    <h1>Batch check</h1>
+    <p>Paste up to 50 messages, one per line. Each line is checked on its own.</p>
+  </div>
+  <div class="card">
+    <label class="lbl" for="bmsg">Messages (one per line)</label>
+    <textarea id="bmsg" style="min-height:170px" placeholder="First message...&#10;Second message...&#10;Third message..." spellcheck="false"></textarea>
+    <div class="row">
+      <button class="primary" id="bgo">Analyze all</button>
+      <button class="ghost" id="bdemo">Load demo set</button>
+      <span class="hint">Results stay in this page and in your browser history only.</span>
+    </div>
+  </div>
+  <div id="bresult"></div>
+</section>
+
+<section id="v-history" class="view">
+  <div class="hero">
+    <h1>History</h1>
+    <p>Your past checks, newest first. Stored only in this browser (local storage), never uploaded. Clearing browser data removes them.</p>
+  </div>
+  <div class="card">
+    <div class="row" style="margin-top:0;justify-content:space-between">
+      <span class="hint" id="hcount"></span>
+      <button class="linklike" id="hclear">Clear all history</button>
+    </div>
+    <div id="hlist" style="margin-top:10px"></div>
+  </div>
+</section>
+
+<section id="v-how" class="view">
+  <div class="hero"><h1>How it works</h1></div>
+  <div class="card how">
+    <h3>1. The risk score comes from our own rules, not from IBM</h3>
+    <p>A small set of plain rules (<code>rules.js</code> in the repo) looks for warning signs: urgency, requests for OTP/PIN/card details, money asks, prizes, threats, shortened or IP links, look-alike link names, odd domain endings, gift cards, too-good earnings, and shouting in capitals. Each matched rule adds points and shows you the exact text it matched.</p>
+    <h3>2. IBM Watson NLP is separate context, run by you in a notebook</h3>
+    <p>IBM's Watson NLP emotion model describes the feelings in a text. It does <b>not</b> decide whether a message is a scam (a prize scam reads as "joy"). IBM does not offer a free always-on way for a public website to call this model: the model only runs inside a watsonx.ai notebook runtime or a deployment that is billed per hour, and putting the account key in a public page would leak it. So the site keeps real Watson outputs that were run in a notebook and clearly labels them as saved results.</p>
+    <p>To analyse a new message with Watson: on the result card press <b>Copy notebook cell</b>, run it in your watsonx.ai Studio notebook (runtime "NLP + DO Runtime ... XS", about 6 capacity units per hour from the free 10 per month - stop the runtime when done), then paste the printed JSON back into <b>Add IBM Watson result</b>.</p>
+    <h3>3. Honest limits</h3>
+    <ul>
+      <li>Rule-based checks miss new tricks and sometimes flag genuine messages (a real OTP notice mentions "OTP").</li>
+      <li>A low score says "few warning signs - safety NOT established". It never means proven safe.</li>
+      <li>Small hand-written tests (36 messages) gave a rough picture only: they do not measure real-world accuracy.</li>
+      <li>When unsure: do not click links or share codes. Contact the company through its official app or number.</li>
+    </ul>
+    <div class="kicker">This tool is a helper, not a judge. The final call is yours.</div>
+  </div>
+</section>
+
+</main>
+<footer><div class="wrap">
+  Built with explainable rules. IBM Watson NLP results shown are real saved notebook outputs, labelled as such. Source: github.com/hadhiabdulla/scam-message-analyzer
+</div></footer>
+<div class="toast" id="toast"></div>
+
+<script src="rules.js"></script>
+<script src="watson-data.js"></script>
 <script>
-const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
-async function go(){
-  const text=document.getElementById('t').value;
-  const r=await (await fetch('/analyze',{method:'POST',body:JSON.stringify({text})})).json();
-  const cls=r.level.split(' ')[0];
-  let h=`<div class="card ${cls}"><div class="big">${esc(r.level)} (score ${r.score}/100)</div>
-  <p class="note">Score comes from our own rules below, not from IBM.</p>`;
-  h+= r.signals.length? '<ul>'+r.signals.map(s=>`<li><span class="tag">${esc(s.rule.replace(/_/g,' '))}</span> (+${s.weight}): ${esc(s.why)} <i>Matched: "${esc(s.matched)}"</i></li>`).join('')+'</ul>' : '<p>No warning signs found by our rules. That does not prove the message is safe.</p>';
-  h+='</div>';
-  const w=r.watson;
-  h+='<div class="card watson"><b>IBM Watson NLP: emotion in the text</b>';
-  if(w.status==='not_available'){h+=`<p>${esc(w.note)}</p>`}
-  else{
-    h+='<p class="note">Saved result from a real IBM Watson NLP notebook run (not a live call). It describes feelings in the text. It does not say if it is a scam.</p>';
-    h+=Object.entries(w.emotion).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="bar"><span class="l">${esc(k)}</span><span class="t"><div class="f" style="width:${Math.round(v*100)}%"></div></span><span class="v">${(v*100).toFixed(0)}%</span></div>`).join('');
-    h+=`<details><summary>Raw saved result</summary><pre>${esc(JSON.stringify(w,null,2))}</pre></details>`;
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+const toast=t=>{const el=$("toast");el.textContent=t;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),1800);};
+
+/* tabs */
+document.querySelectorAll("#nav button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("#nav button").forEach(x=>x.classList.toggle("on",x===b));
+  document.querySelectorAll(".view").forEach(v=>v.classList.toggle("on",v.id==="v-"+b.dataset.v));
+  if(b.dataset.v==="history")renderHistory();
+});
+
+/* samples */
+const SAMPLES=[
+ ["scam","URGENT: Your SBI account will be blocked today. Update KYC now at http://sbi-kyc-update.xyz/login"],
+ ["scam","Your Amazon order is on hold. Confirm your card details at amzn-secure-pay.top within 1 hour or it will be cancelled."],
+ ["scam","This is the tax department. Buy Google Play gift cards worth 20000 and send the codes to avoid arrest."],
+ ["ok","Your OTP for login is 482913. Do not share it with anyone. - YourBank"],
+ ["ok","Congratulations on your results! Proud of you."],
+ ["ok","Meeting moved to 4 PM. Link: https://meet.example.com/abc"],
+];
+$("samples").innerHTML=SAMPLES.map((s,i)=>`<button class="chip ${s[0]}" data-i="${i}">${s[0]==="scam"?"Scam example":"Genuine example"} ${(i%3)+1}</button>`).join("");
+document.querySelectorAll("#samples .chip").forEach(c=>c.onclick=()=>{$("msg").value=SAMPLES[+c.dataset.i][1];$("msg").focus();});
+
+/* level helpers */
+function levelClass(l){return l.startsWith("High")?"high":l.startsWith("Suspicious")?"susp":"grey";}
+function levelShort(l){return l.startsWith("High")?"High risk":l.startsWith("Suspicious")?"Suspicious":"No/few signs";}
+function pill(l){const c=levelClass(l);return `<span class="pill ${c}">${esc(levelShort(l))}</span>`;}
+
+/* highlight */
+const PALETTE=["#ffd6d1","#ffe3b3","#d7e3ff","#e6d4ff","#cdeed8","#ffe0ef","#d3f0f2","#f2e3c9","#e8e8ff","#f9d9c4","#d9e8c9","#f3d1e4","#d0d6ff","#ffeccc"];
+function mergeSpans(spans){
+  const s=[...spans].sort((a,b)=>a[0]-b[0]||b[1]-a[1]);
+  const out=[];
+  for(const sp of s){
+    const last=out[out.length-1];
+    if(last&&sp[0]<=last[1]){last[1]=Math.max(last[1],sp[1]);if(!last[2].includes(sp[2]))last[2].push(sp[2]);}
+    else out.push([sp[0],sp[1],[sp[2]]]);
   }
-  h+='</div>';
-  document.getElementById('out').innerHTML=h;
+  return out;
 }
-async function imp(){
-  const m=document.getElementById('impmsg');
-  try{const r=await (await fetch('/import',{method:'POST',body:document.getElementById('imp').value})).json();
-    m.textContent=r.ok?('Saved '+r.added+' result(s). Press Analyze again.'):('Not saved: '+r.error);}
-  catch(e){m.textContent='Not saved: that is not valid JSON.'}
+function highlighted(text,signals){
+  const spans=mergeSpans(analyzeSpans(text).filter(sp=>signals.some(g=>g.rule===sp[2])));
+  const colorOf={};signals.forEach((g,i)=>colorOf[g.rule]=PALETTE[i%PALETTE.length]);
+  let h="",pos=0;
+  for(const [a,b,names] of spans){
+    h+=esc(text.slice(pos,a));
+    const col=colorOf[names[0]]||PALETTE[0];
+    h+=`<mark style="background:${col}" title="${esc(names.map(n=>n.replace(/_/g," ")).join(" + "))}">${esc(text.slice(a,b))}</mark>`;
+    pos=b;
+  }
+  h+=esc(text.slice(pos));
+  return {html:h,colorOf};
 }
-</script></body></html>
+
+/* watson store */
+const WS_KEY="sma_watson_v1";
+function watsonStore(){try{return JSON.parse(localStorage.getItem(WS_KEY)||"{}")}catch(e){return{}}}
+function watsonFor(text){
+  const t=(text||"").trim();
+  const imp=watsonStore();
+  if(imp[t])return Object.assign({},imp[t],{origin:"imported"});
+  if(WATSON_SAVED[t])return Object.assign({},WATSON_SAVED[t],{origin:"bundled"});
+  return null;
+}
+function notebookCellFor(text){
+  return "# Paste this whole cell into your watsonx.ai Studio notebook and run it.\n"+
+    "# Runtime: \"NLP + DO Runtime ... XS\" (about 6 CU/hour from the free 10/month - stop it after).\n"+
+    "import watson_nlp, json\n"+
+    "MESSAGES = ["+JSON.stringify(text)+"]\n"+
+    "emo = watson_nlp.load('emotion_aggregated-workflow_en_stock')\n"+
+    "out = {m: {\"emotion\": emo.run(m).to_dict()[\"emotion_predictions\"][0][\"emotion\"]} for m in MESSAGES}\n"+
+    "print(json.dumps(out))\n"+
+    "# Copy the one printed line and paste it into \"Add IBM Watson result\" back on the site.";
+}
+const EMO_KEYS=["anger","disgust","fear","joy","sadness"];
+function validateWatson(payload){
+  if(typeof payload!=="object"||!payload||Array.isArray(payload))throw new Error("Expected a JSON object: {message: {emotion: {...}}}");
+  const out={};
+  for(const [msg,v] of Object.entries(payload)){
+    const e=v&&v.emotion;
+    if(!e||typeof e!=="object")throw new Error("Each entry needs an emotion object.");
+    if(!EMO_KEYS.every(k=>typeof e[k]==="number"&&e[k]>=0&&e[k]<=1)||Object.keys(e).length!==5)
+      throw new Error("Emotion must have anger, disgust, fear, joy, sadness as numbers from 0 to 1.");
+    out[msg.trim()]={emotion:Object.fromEntries(EMO_KEYS.map(k=>[k,e[k]])),
+      source:"IBM watson_nlp emotion_aggregated-workflow_en_stock, output copied from a watsonx.ai Studio notebook run"};
+  }
+  return out;
+}
+/* single check */
+let lastAnalysis=null;
+$("go").onclick=()=>{
+  const text=$("msg").value;
+  if(!text.trim()){toast("Paste a message first");return;}
+  const r=analyze(text);
+  lastAnalysis={text:text,result:r};
+  saveHistory(text,r);
+  renderResult(text,r);
+};
+function renderResult(text,r){
+  const cls=levelClass(r.level);
+  const hl=highlighted(text,r.signals);
+  let h=`<div class="card"><div class="verdict ${cls}">
+    <div><div class="vlevel">${esc(r.level)}</div><div class="hint">Verdict from our own rules, not from IBM.</div></div>
+    <div class="scorewrap"><div class="scorebar"><div class="scorefill" style="width:${r.score}%"></div></div>
+    <div class="scorenum">Score ${r.score}/100 - sum of matched rule weights, capped at 100</div></div>
+  </div>`;
+  h+=`<h3 style="margin:18px 0 8px;font-size:15px">Your message, warning signs highlighted</h3><div class="msgbox">${hl.html}</div>`;
+  if(r.signals.length){
+    h+=`<div class="legend">`+r.signals.map(s=>`<span class="lg"><span class="sw" style="background:${hl.colorOf[s.rule]}"></span>${esc(s.rule.replace(/_/g," "))}</span>`).join("")+`</div>`;
+  }
+  h+=`<h3 style="margin:18px 0 8px;font-size:15px">Why (${r.signals.length} sign${r.signals.length===1?"":"s"})</h3>`;
+  h+=r.signals.length
+    ?`<ul class="sigs">`+r.signals.map(s=>`<li><span class="tag">${esc(s.rule.replace(/_/g," "))}</span> <span class="w">+${s.weight} points</span><br>${esc(s.why)}<span class="match">Matched: "${esc(s.matched)}"</span></li>`).join("")+`</ul>`
+    :`<p class="hint">No warning signs matched our rules. That does not prove the message is safe - new tricks may not be covered.</p>`;
+  h+=`<div class="row"><button class="ghost" id="copyrep">Copy report</button></div></div>`;
+
+  const w=watsonFor(text);
+  h+=`<div class="card watson"><h3>IBM Watson NLP: emotion in the text</h3>`;
+  if(w){
+    h+=`<span class="badge">Saved result - real IBM notebook run, not a live call</span>
+    <p class="hint" style="margin-top:0">${w.origin==="imported"?"Imported by you from your notebook run, stored in this browser.":"Bundled from the project notebook runs of 5 Nov 2026."} Emotion describes feelings in the text; it does not say whether it is a scam.</p>`;
+    h+=Object.entries(w.emotion).sort((a,b)=>b[1]-a[1]).map(([k,v])=>
+      `<div class="bar"><span class="l">${esc(k)}</span><span class="t"><div class="f" style="width:${Math.round(v*100)}%"></div></span><span class="v">${(v*100).toFixed(0)}%</span></div>`).join("");
+    h+=`<details><summary>Raw saved result</summary><pre>${esc(JSON.stringify(w.emotion,null,2))}</pre></details>`;
+  }else{
+    h+=`<span class="badge" style="background:#eceff1;color:#5f6368">No saved Watson result for this exact message</span>
+    <p class="hint" style="margin-top:0">IBM does not offer a free always-on endpoint a public website can call, and the account key must never be placed in a public page. To get a real Watson result for this message: copy the prepared notebook cell, run it in your watsonx.ai notebook, and paste the printed JSON back here.</p>
+    <div class="row" style="margin-top:6px">
+      <button class="ghost" id="nbcell">Copy notebook cell for this message</button>
+    </div>`;
+  }
+  h+=`<details><summary>Add IBM Watson result from your notebook</summary>
+    <p class="hint">Paste the JSON line printed by the notebook cell. It is stored only if it has the right shape, and only in this browser.</p>
+    <textarea class="code" id="imp" placeholder='{"your message": {"emotion": {"anger": 0.1, "disgust": 0.0, "fear": 0.0, "joy": 0.8, "sadness": 0.1}}}'></textarea>
+    <div class="row"><button class="ghost" id="impgo">Save Watson result</button><span class="hint" id="impmsg"></span></div>
+  </details></div>`;
+  $("result").innerHTML=h;
+
+  $("copyrep").onclick=()=>{
+    const lines=["Scam Message Analyzer - report","Level: "+r.level+" (score "+r.score+"/100)","Message: "+text,"Warning signs:"]
+      .concat(r.signals.length?r.signals.map(s=>"- "+s.rule.replace(/_/g," ")+" (+"+s.weight+"): "+s.why):["- none matched (safety not established)"])
+      .concat(["Watson emotion: "+(w?"saved real notebook result - "+Object.entries(w.emotion).sort((a,b)=>b[1]-a[1]).map(([k,v])=>k+" "+(v*100).toFixed(0)+"%").join(", "):"not available for this message"),
+      "Note: helper tool, not proof. Low score does not mean safe."]);
+    navigator.clipboard.writeText(lines.join("\n")).then(()=>toast("Report copied"),()=>toast("Copy failed"));
+  };
+  const nb=$("nbcell");
+  if(nb)nb.onclick=()=>navigator.clipboard.writeText(notebookCellFor(text)).then(()=>toast("Notebook cell copied"),()=>toast("Copy failed"));
+  $("impgo").onclick=()=>{
+    const m=$("impmsg");
+    try{
+      const obj=validateWatson(JSON.parse($("imp").value));
+      const store=watsonStore();Object.assign(store,obj);
+      localStorage.setItem(WS_KEY,JSON.stringify(store));
+      toast("Saved "+Object.keys(obj).length+" Watson result(s)");
+      if(lastAnalysis)renderResult(lastAnalysis.text,lastAnalysis.result);
+    }catch(e){m.textContent="Not saved: "+e.message;}
+  };
+}
+/* batch */
+$("bdemo").onclick=()=>{$("bmsg").value=SAMPLES.map(s=>s[1]).join("\n");};
+$("bgo").onclick=()=>{
+  const lines=$("bmsg").value.split("\n").map(s=>s.trim()).filter(Boolean).slice(0,50);
+  if(!lines.length){toast("Paste at least one message");return;}
+  const rows=lines.map(t=>({t:t,r:analyze(t)}));
+  const nHigh=rows.filter(x=>levelClass(x.r.level)==="high").length;
+  const nSusp=rows.filter(x=>levelClass(x.r.level)==="susp").length;
+  const nGrey=rows.length-nHigh-nSusp;
+  let h=`<div class="card"><div class="summary">
+    <span><b>${rows.length}</b> checked</span>
+    <span style="color:var(--high)"><b>${nHigh}</b> high risk</span>
+    <span style="color:var(--susp)"><b>${nSusp}</b> suspicious</span>
+    <span style="color:var(--grey)"><b>${nGrey}</b> no/few signs (safety not established)</span></div>
+    <table class="batch"><thead><tr><th style="width:34px">#</th><th>Message</th><th style="width:120px">Score</th><th style="width:110px">Level</th></tr></thead><tbody>`;
+  rows.forEach((x,i)=>{
+    const cls=levelClass(x.r.level);
+    h+=`<tr class="brow" data-i="${i}"><td>${i+1}</td><td class="excerpt">${esc(x.t.length>90?x.t.slice(0,90)+"...":x.t)}</td>
+    <td><span class="minibar"><i style="width:${x.r.score}%;background:${cls==="high"?"var(--high)":cls==="susp"?"#e08a00":"#90a4ae"}"></i></span>${x.r.score}</td>
+    <td>${pill(x.r.level)}</td></tr>
+    <tr class="detail" id="bd${i}" style="display:none"><td></td><td colspan="3">${
+      x.r.signals.length?`<ul>`+x.r.signals.map(s=>`<li><b>${esc(s.rule.replace(/_/g," "))}</b> (+${s.weight}): ${esc(s.why)} <i>matched "${esc(s.matched)}"</i></li>`).join("")+`</ul>`
+      :`<span class="hint">No rule matched - safety not established.</span>`}</td></tr>`;
+  });
+  h+=`</tbody></table><p class="hint">Click a row to see its reasons. Rule misses and false alarms are possible on every line.</p></div>`;
+  $("bresult").innerHTML=h;
+  document.querySelectorAll("tr.brow").forEach(tr=>tr.onclick=()=>{
+    const d=$("bd"+tr.dataset.i);d.style.display=d.style.display==="none"?"table-row":"none";
+  });
+};
+
+/* history */
+const H_KEY="sma_history_v1";
+function hist(){try{return JSON.parse(localStorage.getItem(H_KEY)||"[]")}catch(e){return[]}}
+function saveHistory(text,r){
+  const a=hist();
+  if(a[0]&&a[0].text===text)return;
+  a.unshift({text:text.slice(0,4000),score:r.score,level:r.level,at:Date.now()});
+  localStorage.setItem(H_KEY,JSON.stringify(a.slice(0,30)));
+}
+function renderHistory(){
+  const a=hist();
+  $("hcount").textContent=a.length?`${a.length} saved check${a.length===1?"":"s"} (max 30 kept)`:"";
+  $("hlist").innerHTML=a.length?a.map((x,i)=>`
+    <div class="hitem" data-i="${i}">${pill(x.level)}
+      <div class="hx">${esc(x.text)}</div>
+      <div class="ht">${x.score}/100 - ${new Date(x.at).toLocaleString()}</div>
+    </div>`).join(""):`<div class="empty">No checks yet. Analyze a message and it will appear here.</div>`;
+  document.querySelectorAll(".hitem").forEach(el=>el.onclick=()=>{
+    const x=hist()[+el.dataset.i];
+    document.querySelector('#nav button[data-v="check"]').click();
+    $("msg").value=x.text;$("go").click();
+    window.scrollTo({top:0,behavior:"smooth"});
+  });
+}
+$("hclear").onclick=()=>{localStorage.removeItem(H_KEY);renderHistory();toast("History cleared");};
+</script>
+</body>
+</html>
