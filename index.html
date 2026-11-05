@@ -179,7 +179,7 @@ footer{border-top:1px solid var(--line);padding:20px 0;color:var(--muted);font-s
     <h3>1. The risk score comes from our own rules, not from IBM</h3>
     <p>A small set of plain rules (<code>rules.js</code> in the repo) looks for warning signs: urgency, requests for OTP/PIN/card details, money asks, prizes, threats, shortened or IP links, look-alike link names, odd domain endings, gift cards, too-good earnings, and shouting in capitals. Each matched rule adds points and shows you the exact text it matched.</p>
     <h3>2. Live check with the trained IBM spam classifier</h3>
-    <p>The <b>Analyze live</b> button sends only the message text to a small relay (a Cloudflare Worker). The relay keeps the account key secret, asks IBM watsonx.ai to score the text with the model trained for this project (TF-IDF + SVM ensemble on the UCI SMS Spam Collection), and returns spam or ham with the model's internal scores. To stay inside IBM's free quota, the scoring deployment is created on demand and automatically deleted after about 10 idle minutes - so the first live call after a quiet period can take 1-2 minutes while it wakes up. Live calls are rate-limited to protect the quota.</p>
+    <p>The <b>Analyze live</b> button sends only the message text to a small relay (a Cloudflare Worker). The relay keeps the account key secret, asks IBM watsonx.ai to score the text with the model trained for this project (TF-IDF + SVM ensemble on the UCI SMS Spam Collection), and returns spam or ham with the model's internal scores. To stay inside IBM's free quota, the scoring deployment is created on demand and automatically deleted after a short idle period - so the first live call after a quiet period can take 1-2 minutes while it wakes up. Live calls are rate-limited to protect the quota. <b>Note (5 Nov 2026):</b> live scoring is temporarily paused while its automatic cleanup is being hardened - the instant in-browser check is unaffected.</p>
     <h3>3. IBM Watson NLP emotion results are separate context, run by you in a notebook</h3>
     <p>IBM's Watson NLP emotion model describes the feelings in a text. It does <b>not</b> decide whether a message is a scam (a prize scam reads as "joy"). Putting the account key in a public page would leak it, so the site keeps real Watson emotion outputs that were run in a notebook and clearly labels them as saved results.</p>
     <p>To analyse a new message with Watson: on the result card press <b>Copy notebook cell</b>, run it in your watsonx.ai Studio notebook (runtime "NLP + DO Runtime ... XS", about 6 capacity units per hour from the free 10 per month - stop the runtime when done), then paste the printed JSON back into <b>Add IBM Watson result</b>.</p>
@@ -314,6 +314,7 @@ async function liveScore(text){
     const data=await resp.json().catch(()=>({}));
     if(resp.ok&&data&&data.label)return data;
     if(resp.status===429)throw new Error("live scoring is rate-limited right now (this protects the free quota) - try again later");
+    if(resp.status===503&&data&&data.error==="live_paused")throw new Error("live scoring is temporarily paused while its automatic cleanup is being hardened");
     throw new Error("live scoring failed (HTTP "+resp.status+")");
   }
   throw new Error("the model is still waking up - try again in about a minute");
