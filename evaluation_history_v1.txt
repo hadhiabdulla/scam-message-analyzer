@@ -1,0 +1,23 @@
+label score verdict     message
+1     60    High risk   URGENT: Your SBI account will be blocked today. Update KYC now at http
+1     40    Suspicious  Congratulations! You have won Rs. 25,00,000 in the lucky draw. Send Rs
+1     40    Suspicious  Dear customer, share the OTP you received to avoid account suspension.
+1     65    High risk   Your parcel is held at customs. Pay a small fee at bit.ly/3xYpay withi
+1     65    High risk   Income Tax refund of Rs 18,420 approved. Verify your account number an
+1     80    High risk   FINAL WARNING!!! YOUR PAYTM WALLET IS FROZEN. CLICK TO REACTIVATE AND 
+1     55    High risk   You have been selected for a free iPhone. Act now, only today: tinyurl
+1     45    Suspicious  Hi, I am from support team. Your electricity will be cut tonight. Tran
+1     20    Low risk    Legal action will be taken against you. Pay the pending penalty now us  <-- WRONG
+1     20    Low risk    Earn Rs 5000 daily from home, just deposit Rs 500 to start. Reply YES.  <-- WRONG
+0     0     Low risk    Hey, are we still meeting at 6 for the project discussion?
+0     30    Suspicious  Your OTP for login is 482913. Do not share it with anyone. - YourBank  <-- WRONG
+0     0     Low risk    Reminder: your electricity bill of Rs 842 is due on 12 Nov. Pay via th
+0     20    Low risk    Amma: please pay the school fee today, I will send you the amount toni
+0     20    Low risk    Congratulations on your results! Proud of you.
+0     0     Low risk    Your Amazon order has shipped and will arrive Friday. Track it in the 
+0     0     Low risk    Lunch at 1? I can transfer you my share for the pizza.
+0     15    Low risk    Report submission is due within 2 hours, please upload it on the p
+0     0     Low risk    Your package was delivered to the front desk at 3:40 PM.
+0     0     Low risk    Meeting moved to 4 PM. Link: https://meet.example.com/abc
+
+correct 17/20  caught scams 8/10  false alarms 1/10
