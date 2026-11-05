@@ -1,0 +1,17 @@
+1 100  Dear customer, your debit card is blocked. Verify your card number and
+1 50  Your Netflix payment failed. Update billing details at netflix-update-
+1 30  Pay the customs fee of Rs 1,850 via UPI to release your parcel, else i
+1 25  Work from home and make $300 per day, no experience needed. WhatsApp m
+1 45  You are selected for a free iPhone 15! Click http://192.168.4.7/claim 
+1 45  This is the tax department. Buy Google Play gift cards worth 20000 and
+1 25  Hi, I am your boss. Need a quick favour, buy vouchers and message me t
+1 60  Your electricity will be cut tonight. Call this number and share your 
+0 0  Dinner at 8? I booked the table near the window.
+0 0  Your bank statement for October is ready in the official app.
+0 30 <-- WRONG Your OTP is 551203. Never share this code with anyone.
+0 0  Can you send me the notes from yesterday's class?
+0 0  Your flight 6E-204 is on time. Boarding starts at 5:10 PM.
+0 0  Happy birthday! Let's get a gift for Riya, I will pay my share tomorro
+0 30 <-- WRONG Your account password was changed. If this was you, no action is neede
+0 0  Sale: 20% off at the store this weekend only.
+correct 14/16 scams caught 8/8 false alarms 2/8
